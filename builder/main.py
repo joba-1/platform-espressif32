@@ -503,10 +503,16 @@ elif upload_protocol in debug_tools:
     openocd_args = ["-d%d" % (2 if int(ARGUMENTS.get("PIOVERBOSE", 0)) else 1)]
     openocd_args.extend(
         debug_tools.get(upload_protocol).get("server").get("arguments", []))
+    
+    debug_speed = "%s" % env.GetProjectOption("debug_speed", "5000")
+    debug_speed_tokens = debug_speed.split()
+    if len(debug_speed_tokens) > 1:
+        openocd_args.extend(["-c", "adapter serial %s" % debug_speed_tokens[1]])
+
     openocd_args.extend(
         [
             "-c",
-            "adapter speed %s" % env.GetProjectOption("debug_speed", "5000"),
+            "adapter speed %s" % debug_speed_tokens[0],
             "-c",
             "program_esp {{$SOURCE}} %s verify"
             % (

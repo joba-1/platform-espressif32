@@ -268,9 +268,15 @@ class Espressif32Platform(PlatformBase):
         flash_images = build_extra_data.get("flash_images", [])
 
         if "openocd" in (debug_config.server or {}).get("executable", ""):
+            debug_speed = "%s" % (debug_config.speed or "5000")
+            debug_speed_tokens = debug_speed.split()
             debug_config.server["arguments"].extend(
-                ["-c", "adapter speed %s" % (debug_config.speed or "5000")]
+                ["-c", "adapter speed %s" % debug_speed_tokens[0]]
             )
+            if len(debug_speed_tokens) > 1:
+                debug_config.server["arguments"].extend(
+                    ["-c", "adapter serial %s" % debug_speed_tokens[1]]
+                )
 
         ignore_conds = [
             debug_config.load_cmds != ["load"],
